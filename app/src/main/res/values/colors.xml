@@ -3,4 +3,9 @@
     <color name="colorPrimary">#DE6F1E</color>
     <color name="colorPrimaryDark">#008357</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="colorEastExpress">#FFEE00</color>
+    <color name="colorEast">#008752</color>
+    <color name="colorMeandering">#845BA6</color>
+    <color name="colorFrankford">#F8971D</color>
 </resources>

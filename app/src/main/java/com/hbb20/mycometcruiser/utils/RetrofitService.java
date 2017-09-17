@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Query;
 
 /**
  * Created by hbb20 on 9/16/17.
@@ -11,7 +12,8 @@ import retrofit2.http.GET;
 
 public interface RetrofitService {
 
-    @GET("todo/api/v1.0/tasks")
-    Call<JsonObject> getSample();
+    @GET("get_locations")
+    Call<JsonObject> getLiveBusLocations(@Query("route_id") String routeIds);
+
 
 }

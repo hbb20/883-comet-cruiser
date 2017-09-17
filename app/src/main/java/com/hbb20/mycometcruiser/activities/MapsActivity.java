@@ -1,13 +1,12 @@
 package com.hbb20.mycometcruiser.activities;
 
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -24,6 +23,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.hbb20.mycometcruiser.R;
 import com.hbb20.mycometcruiser.models.BusLocation;
+import com.hbb20.mycometcruiser.models.Driver;
 import com.hbb20.mycometcruiser.utils.RetrofitHelper;
 
 import java.lang.reflect.Type;
@@ -36,7 +36,34 @@ import retrofit2.Response;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    Button btnOpenBottomSheet;
+    /**
+     * Android Views
+     **/
+    android.support.design.widget.CoordinatorLayout mainContent;
+    CheckBox cbFrankford;
+    CheckBox cbEast;
+    CheckBox cbMeandering;
+    CheckBox cbEastExpress;
+    List<BusLocation> busLocations;
+    /**
+     * Android Views
+     **/
+    MarkerOptions markerOptions;
+    Marker marker;
     private GoogleMap mMap;
+
+    /**
+     * Binds XML views
+     * Call this function after setContentView() in onCreate().
+     **/
+    private void bindViews() {
+        mainContent = (android.support.design.widget.CoordinatorLayout) findViewById(R.id.main_content);
+        cbFrankford = (CheckBox) findViewById(R.id.cb_frankford);
+        cbEast = (CheckBox) findViewById(R.id.cb_east);
+        cbMeandering = (CheckBox) findViewById(R.id.cb_meandering);
+        cbEastExpress = (CheckBox) findViewById(R.id.cb_east_express);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +72,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+
+        bindViews();
         mapFragment.getMapAsync(this);
         getSupportActionBar().setTitle("883 Comet Cruiser");
     }
@@ -63,8 +92,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void onDriveMenuClicked() {
         Toast.makeText(this, "You will be able to report location shortly......", Toast.LENGTH_SHORT).show();
-    }
+        if(Driver.isAlreadyLoggedIn(this)){
 
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -72,14 +103,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         inflater.inflate(R.menu.map_activity_menu, menu);
         return true;
     }
-
-    private void startMoving() {
-        for(int i=0; i<100; i++){
-
-            updateLocations();
-        }
-    }
-
 
     /**
      * Manipulates the map once available.
@@ -95,24 +118,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng utdVillage = new LatLng(32.9925584,-96.7440469);
+        LatLng utdVillage = new LatLng(32.9851, -96.749427);
         mMap.addMarker(new MarkerOptions().position(utdVillage).title("UTD Village"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(utdVillage));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(utdVillage, 12.0f));
         callServer();
     }
 
-    BusLocation busLocation;
-    MarkerOptions markerOptions;
     private void callServer() {
-        RetrofitHelper.getRetrofitService(this).getSample().enqueue(new Callback<JsonObject>() {
+        RetrofitHelper.getRetrofitService(this).getLiveBusLocations(getSelectedRouteIDs()).enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                JsonArray jLocations = response.body().getAsJsonArray("location");
-                Type listType = new TypeToken<ArrayList<BusLocation>>() {
-                }.getType();
-                List<BusLocation> busLocations = new Gson().fromJson(jLocations, listType);
-                busLocation = busLocations.get(0);
-                updateLocations();
+                if (response.isSuccessful()) {
+                    JsonArray jLocations = response.body().getAsJsonArray("locations");
+                    Type listType = new TypeToken<ArrayList<BusLocation>>() {
+                    }.getType();
+                    List<BusLocation> busLocations = new Gson().fromJson(jLocations, listType);
+                    refreshMarkers(busLocations);
+                }
             }
 
             @Override
@@ -123,26 +145,38 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-    Marker marker;
-
-    private void updateLocations() {
-        busLocation.increment();
-        if(markerOptions == null){
-            markerOptions = new MarkerOptions().position(busLocation.getLatLng()).title("Bus "+busLocation.getId());
-            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_directions_bus_black_24dp));
-            marker = mMap.addMarker(markerOptions);
-        }else {
-            marker.remove();
-            markerOptions.position(busLocation.getLatLng());
-            marker = mMap.addMarker(markerOptions);
+    private String getSelectedRouteIDs() {
+        String routeIDs = "[";
+        if(cbEastExpress.isChecked()){
+            routeIDs+=BusLocation.ROUTE_EAST_EXPRESS+",";
         }
 
-        //
-//        updateLocations();
-//        try {
-//            Thread.sleep(5000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        if(cbEast.isChecked()){
+            routeIDs+=BusLocation.ROUTE_EAST+",";
+        }
+
+        if(cbFrankford.isChecked()){
+            routeIDs+=BusLocation.ROUTE_FRANKFORD+",";
+        }
+
+        if(cbMeandering.isChecked()){
+            routeIDs+=BusLocation.ROUTE_MEANDERING+",";
+        }
+
+        if(routeIDs.equals("[")){
+            return "[1,2,3,4]";
+        }else{
+            return  routeIDs+"]";
+        }
     }
+
+    private void refreshMarkers(List<BusLocation> busLocations) {
+        mMap.clear();
+        this.busLocations = busLocations;
+        for (BusLocation location : busLocations) {
+            mMap.addMarker(new MarkerOptions().position(location.getLatLng()).title(location.getTitle()).icon(BitmapDescriptorFactory.fromResource(location.getBusResourceId())));
+        }
+    }
+
+
 }
