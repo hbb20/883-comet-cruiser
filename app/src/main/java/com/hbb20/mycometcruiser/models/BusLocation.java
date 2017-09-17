@@ -107,13 +107,13 @@ public class BusLocation {
     public int getBusResourceId(){
         switch (getRoute()) {
             case ROUTE_EAST:
-                return R.drawable.ic_directions_bus_black_24dp;
+                return R.drawable.ic_directions_bus_black_24dp_bus_east;
             case ROUTE_EAST_EXPRESS:
-                return R.drawable.ic_directions_bus_black_24dp;
+                return R.drawable.ic_directions_bus_black_24dp_bus_east_express;
             case ROUTE_FRANKFORD:
-                return R.drawable.ic_directions_bus_black_24dp;
+                return R.drawable.ic_directions_bus_black_24dp_bus_frankford;
             case ROUTE_MEANDERING:
-                return R.drawable.ic_directions_bus_black_24dp;
+                return R.drawable.ic_directions_bus_black_24dp_bus_meandering;
             default:
                 return R.drawable.ic_directions_bus_black_24dp;
         }

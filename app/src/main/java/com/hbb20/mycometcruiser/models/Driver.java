@@ -9,10 +9,15 @@ import com.hbb20.mycometcruiser.utils.AppStorageManager;
  */
 
 public class Driver {
-    private static String KEY_USER_NAME = "user_name";
+    public static String KEY_USER_ID = "user_name";
+    public static String KEY_NAME = "name";
 
     public static boolean isAlreadyLoggedIn(Context context){
         //when key_user_name is already stored
-        return AppStorageManager.getSharedStoredString(context, KEY_USER_NAME).length() == 0;
+        return AppStorageManager.getSharedStoredString(context, KEY_USER_ID).length() !=0;
+    }
+
+    public static void setLoggedIn(Context context,String superman) {
+        AppStorageManager.setSharedStoreString(context, KEY_USER_ID,superman);
     }
 }
