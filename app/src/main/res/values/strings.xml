@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MyCometCruiser</string>
+    <string name="app_name">883 Comet Cruiser</string>
     <string name="title_activity_maps">ComentCruiserMap</string>
     <string name="base_url">http://192.168.43.99:5000/</string>
 </resources>

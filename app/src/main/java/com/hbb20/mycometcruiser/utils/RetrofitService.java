@@ -1,4 +1,4 @@
-package com.hbb20.mycometcruiser;
+package com.hbb20.mycometcruiser.utils;
 
 import com.google.gson.JsonObject;
 

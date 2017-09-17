@@ -1,10 +1,13 @@
-package com.hbb20.mycometcruiser;
+package com.hbb20.mycometcruiser.utils;
 
 /**
  * Created by hbb20 on 9/16/17.
  */
 
 import android.content.Context;
+
+import com.hbb20.mycometcruiser.BuildConfig;
+import com.hbb20.mycometcruiser.R;
 
 import java.io.IOException;
 import java.util.Collections;

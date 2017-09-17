@@ -1,5 +1,6 @@
-package com.hbb20.mycometcruiser;
+package com.hbb20.mycometcruiser.models;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -17,6 +18,7 @@ public class BusLocation {
     @SerializedName("longitude")
     @Expose
     private float longitude;
+
 
     public int getId() {
         return id;
@@ -42,5 +44,12 @@ public class BusLocation {
         this.longitude = longitude;
     }
 
+    public LatLng getLatLng(){
+        return new LatLng(getLatitude(),getLongitude());
+    }
 
+    public void increment(){
+        latitude += 0.02;
+        longitude += 0.02;
+    }
 }
